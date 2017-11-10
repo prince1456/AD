@@ -12,7 +12,7 @@ export default class Login extends Component {
     showSpinner: true,
   }
     componentDidMount() {
-      firebase.auth().signOut()
+      // firebase.auth().signOut()
         firebase.auth().onAuthStateChanged(auth => {
               if (auth) {
                 this.firebaseRef = firebase.database().ref('users')
@@ -46,7 +46,12 @@ export default class Login extends Component {
       }
 
       createUser = (uid, userData) => {
-        firebase.database().ref('users').child(uid).update({...userData, uid})
+        const defaults = {
+          uid,
+          distance: 5,
+          ageRange: [18, 25],
+        }
+        firebase.database().ref('users').child(uid).update({...userData, ...defaults})
       }
 
     login = async () => {
@@ -74,7 +79,7 @@ export default class Login extends Component {
               style={styles.loginBackground}
               >
               { this.state.showSpinner ? <ActivityIndicator animating={this.state.showSpinner} /> :
-                <View style={{height: 100}}>
+                <View style={{height: 50}}>
                   <Fumi
                     label={'Course Name'}
                     iconClass={FontAwesomeIcon}

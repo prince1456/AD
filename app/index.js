@@ -11,8 +11,7 @@ import Login from './screens/Login'
 const windowWidth = Dimensions.get('window').width
 
 firebaseConfig = {
-  apiKey: "AIzaSyDwOTHQ3Gri6wJTKsZF3Bm6Ws38lBaQ9Rk",
-  databaseURL: "https://astro-d36e0.firebaseio.com",
+
 }
 
 firebase.initializeApp(firebaseConfig)

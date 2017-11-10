@@ -5,8 +5,11 @@ import { StyleSheet, Text,
   } from 'react-native';
 import * as firebase from 'firebase'
 import Geofire from 'geofire'
+import Profile from './profile'
 import Card from "../components/Card/card"
 import {SimpleScroller} from "../components/SimpleScroller/index.js"
+import filter from '../modules/filter'
+
 const windowWidth = Dimensions.get('window').width
 
 
@@ -14,31 +17,41 @@ export default class Home extends React.Component {
   state ={
     profileIndex: 0,
     profiles: [],
+    user: this.props.navigation.state.params.user,
   }
 
   componentWillMount() {
-    const {uid} = this.props.navigation.state.params.user
+    const {uid } = this.state.user
     this.updateUserLocation(uid)
-    this.getProfile(uid)
+    firebase.database().ref('users').child(uid).on('value', snap => {
+      const user = snap.val();
+      this.setState({
+        user,
+        profileIndex: 0,
+        profiles:[],
+      })
+      this.getProfile(user.uid, user.distance)
+    })
   }
   getUser = (uid) => {
     return firebase.database().ref('users').child(uid).once('value')
   }
 
-  getProfile = async (uid) => {
+  getProfile = async (uid, distance) => {
     const geoFireRef = new Geofire(firebase.database().ref('geoData'))
     const userLocation = await geoFireRef.get(uid)
     console.log('Location: ',  userLocation)
     const geoQuery = geoFireRef.query({
       center: userLocation,
-      radius: 10,
+      radius: distance,
     })
     geoQuery.on('key_entered', async (uid, location, distance) => {
       console.log(uid + ' at ' + location + ' is ' + distance + 'km from the center')
       const user = await this.getUser(uid)
       console.log(user.val().first_name)
       const profiles = [...this.state.profiles, user.val()]
-      this.setState({profiles})
+      const filtered = filter(profiles, this.state.user)
+      this.setState({profiles: filtered})
     })
   }
 
@@ -81,7 +94,7 @@ export default class Home extends React.Component {
     return (
      <SimpleScroller
       screens={[
-        <View Style={{flex: 1, backgroundColor: 'red'}} />,
+        <Profile user={this.state.user}/>,
         this.cardStack()]}
      />
     )
