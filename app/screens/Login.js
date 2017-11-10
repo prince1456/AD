@@ -33,7 +33,7 @@ export default class Login extends Component {
         const resetAction = NavigationActions.reset({
           index: 0,
           actions: [
-            NavigationActions.navigate({ routeName: 'Home',  params: {user}}),
+            NavigationActions.navigate({ routeName: 'AstroChart',  params: {user}}),
           ],
         })
         this.props.navigation.dispatch(resetAction)
